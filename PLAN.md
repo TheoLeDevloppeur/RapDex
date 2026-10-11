@@ -17,7 +17,7 @@ Une étape = un commit testable. On ne passe à la suivante qu'après validation
   Validation : une carte ajoutée survit au redémarrage de l'app.
 - [x] **5. Composant Carte** : format 5:7, 6 motifs, 3 mises en page, versions grille et détail.
   Validation : un écran galerie montre toutes les cartes, toutes différentes.
-- [ ] **6. Écran Collection** : compteur, filtres par genre, grille 2 colonnes, case « ? », état vide, bouton « Ajouter une carte ».
+- [x] **6. Écran Collection** : compteur, filtres par genre, grille 2 colonnes, case « ? », état vide, bouton « Ajouter une carte ».
   Validation : on voit sa collection, les filtres fonctionnent.
 - [ ] **7. Écran Ajouter** : recherche insensible aux accents, suggestions, sélection, artistes déjà possédés, aucun résultat, bouton de validation (sans animation).
   Validation : chercher « lay », ajouter Laylow, la carte apparaît dans la collection.
