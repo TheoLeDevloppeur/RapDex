@@ -3,11 +3,11 @@ import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 
+import { useReduceMotion } from '@/hooks/use-reduce-motion';
 import { FixedText } from '@/components/fixed-text';
 import { colors, fonts } from '@/theme/theme';
 
@@ -22,7 +22,7 @@ type Props = {
 
 /** Enveloppe d'une carte de la grille : arrivée en chute et étiquette « NEW ». */
 export function LandingCard({ children, pending, play, isNew }: Props) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const progress = useSharedValue(pending && !reduceMotion ? 0 : 1);
 
   useEffect(() => {

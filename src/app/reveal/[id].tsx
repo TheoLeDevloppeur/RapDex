@@ -5,7 +5,6 @@ import { AccessibilityInfo, Platform, Pressable, StyleSheet, Text, useWindowDime
 import Animated, {
   Easing,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withDelay,
   withRepeat,
@@ -45,7 +44,8 @@ export default function RevealScreen() {
   const { width, height } = useWindowDimensions();
   // Centre vertical de la carte, mesuré une fois la mise en page faite.
   const [stageCenter, setStageCenter] = useState(height * 0.38);
-  const reduceMotion = useReducedMotion();
+  /** Mouvement réduit : pas d'animation du tout, même pour la fin. */
+  const calm = useRef(false);
   const artist = getArtist(id);
   const entry = entries.find((e) => e.id === id);
 
@@ -76,20 +76,34 @@ export default function RevealScreen() {
     if (!artist || !entry) return;
     AccessibilityInfo.announceForAccessibility(`Nouvelle carte : ${artist.name}. ${total} cartes dans ta collection.`);
 
+    let cancelled = false;
+    // Réglage lu en direct (quelques millisecondes) avant de lancer la séquence.
+    // On ne saute pas l'animation pour les lecteurs d'écran : le test renvoie des
+    // faux positifs (toujours vrai sur le web), et l'annonce ci-dessus suffit.
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then((reduceMotion) => {
+        if (cancelled) return;
+        if (__DEV__) console.log(`[Révélation] mouvement réduit : ${reduceMotion}`);
+        if (reduceMotion) {
+          calm.current = true;
+          showEnd();
+        } else {
+          play();
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      clearTimers();
+    };
+    // La séquence ne se joue qu'une fois, à l'ouverture.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function play() {
     const at = (ms: number, fn: () => void) => timers.current.push(setTimeout(fn, ms));
     const ease = Easing.bezier(0.3, 1.25, 0.4, 1);
-
-    if (reduceMotion) {
-      showEnd();
-      return clearTimers;
-    }
-
-    // Avec un lecteur d'écran, l'animation n'apporte rien : on affiche la fin.
-    AccessibilityInfo.isScreenReaderEnabled()
-      .then((on) => {
-        if (on && !finished.current) showEnd();
-      })
-      .catch(() => {});
 
     at(T.ticket, () => {
       ticketOpacity.value = withTiming(1, { duration: 250 });
@@ -124,11 +138,7 @@ export default function RevealScreen() {
       outro.value = withDelay(100, withTiming(1, { duration: 350 }));
       finish();
     });
-
-    return clearTimers;
-    // La séquence ne se joue qu'une fois, à l'ouverture.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }
 
   function clearTimers() {
     timers.current.forEach(clearTimeout);
@@ -139,7 +149,7 @@ export default function RevealScreen() {
     if (finished.current) return;
     finished.current = true;
     setDone(true);
-    timers.current.push(setTimeout(() => setCount(total), reduceMotion ? 0 : 260));
+    timers.current.push(setTimeout(() => setCount(total), calm.current ? 0 : 260));
   }
 
   /** Affiche directement l'état final (toucher pour passer, ou mouvement réduit). */
@@ -151,11 +161,11 @@ export default function RevealScreen() {
     flip.value = 180;
     burstOpacity.value = 0.55;
     burstScale.value = 1;
-    if (!reduceMotion) burstRotation.value = withRepeat(withTiming(360, { duration: 36000, easing: Easing.linear }), -1);
+    if (!calm.current) burstRotation.value = withRepeat(withTiming(360, { duration: 36000, easing: Easing.linear }), -1);
     flash.value = 0;
     stampOpacity.value = 1;
     stampScale.value = 1;
-    outro.value = reduceMotion ? 1 : withTiming(1, { duration: 200 });
+    outro.value = calm.current ? 1 : withTiming(1, { duration: 200 });
     finish();
   }
 

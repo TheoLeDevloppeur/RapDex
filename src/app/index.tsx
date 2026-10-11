@@ -5,7 +5,6 @@ import { FlatList, Platform, Pressable, StyleSheet, Text, useWindowDimensions, V
 import Animated, {
   Easing,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withSequence,
   withTiming,
@@ -13,6 +12,7 @@ import Animated, {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
+import { useReduceMotion } from '@/hooks/use-reduce-motion';
 import { ArtistCard, CARD_RATIO } from '@/components/card/artist-card';
 import { LandingCard } from '@/components/card/landing-card';
 import { FixedText } from '@/components/fixed-text';
@@ -35,7 +35,7 @@ export default function CollectionScreen() {
   const [filter, setFilter] = useState<GenreFilter>('all');
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const listRef = useRef<FlatList<GridItem>>(null);
 
   // Arrivée de la nouvelle carte, jouée quand on revient sur la collection.
