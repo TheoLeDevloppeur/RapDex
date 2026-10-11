@@ -1,9 +1,11 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ARTISTS, getArtist } from '@/data/artists';
+import { useCollection } from '@/hooks/use-collection';
 import { colors, fonts, genres, radius, space, touch, type, type Genre } from '@/theme/theme';
 
-// Écran de démo de l'étape 2 : il sera remplacé par la Collection à l'étape 6.
+// Écran de démo des étapes 2 à 4 : il sera remplacé par la Collection à l'étape 6.
 
 const SALLE: { name: string; value: string; use: string }[] = [
   { name: 'Nuit', value: colors.nuit, use: 'Fond' },
@@ -24,6 +26,8 @@ export default function DesignDemo() {
             RAP<Text style={{ color: colors.surligneur }}>DEX</Text>
           </Text>
         </View>
+
+        <CollectionTest />
 
         <Section title="La salle">
           <View style={styles.swatches}>
@@ -92,6 +96,42 @@ export default function DesignDemo() {
   );
 }
 
+/** Test manuel de l'étape 4 : ajoute des cartes, ferme l'app, rouvre-la. */
+function CollectionTest() {
+  const { entries, has, add, remove } = useCollection();
+
+  const addRandom = () => {
+    const free = ARTISTS.filter((a) => !has(a.id));
+    if (free.length) add(free[Math.floor(Math.random() * free.length)].id);
+  };
+
+  return (
+    <Section title="Test de la collection">
+      <Text style={type.counter}>
+        <Text style={{ color: colors.surligneur }}>{entries.length}</Text>
+        {entries.length > 1 ? ' cartes' : ' carte'}
+      </Text>
+      {entries.slice(0, 5).map((e) => (
+        <Text key={e.id} style={type.body}>
+          {getArtist(e.id)?.name} <Text style={type.mono}>· ajoutée le {e.addedAt}</Text>
+        </Text>
+      ))}
+      <Pressable
+        accessibilityRole="button"
+        onPress={addRandom}
+        style={({ pressed }) => [styles.primary, pressed && styles.primaryPressed]}>
+        <Text style={styles.primaryText}>+ Ajouter un artiste au hasard</Text>
+      </Pressable>
+      {entries.length > 0 && (
+        <Pressable accessibilityRole="button" onPress={() => remove(entries[0].id)} style={styles.secondary}>
+          <Text style={[type.button, { color: colors.papier }]}>Retirer la dernière carte</Text>
+        </Pressable>
+      )}
+      <Text style={type.bodySmall}>Ajoute quelques cartes, ferme complètement l’app, puis rouvre-la.</Text>
+    </Section>
+  );
+}
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <View style={styles.section}>
@@ -147,4 +187,12 @@ const styles = StyleSheet.create({
   },
   primaryPressed: { transform: [{ translateY: 3 }], boxShadow: `0 1px 0 ${colors.surligneurOmbre}` },
   primaryText: { ...type.button, color: colors.encre },
+  secondary: {
+    minHeight: touch.min + 4,
+    borderRadius: radius.md + 2,
+    borderWidth: 1.5,
+    borderColor: colors.trait,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

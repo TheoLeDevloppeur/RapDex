@@ -11,7 +11,7 @@ Une étape = un commit testable. On ne passe à la suivante qu'après validation
   Validation : l'app s'ouvre sur le téléphone et affiche « RapDex ».
 - [x] **2. Système de design** : `theme.ts` (couleurs, espacements, rayons), chargement des trois polices.
   Validation : un écran de démo montre la palette et les polices.
-- [ ] **3. Données artistes** : type `Artist`, `artists.json` (169 artistes, ajouts toujours en fin de liste), fonction de variante de carte (motif, mise en page, encre) testée.
+- [x] **3. Données artistes** : type `Artist`, `artists.json` (169 artistes, ajouts toujours en fin de liste), fonction de variante de carte (motif, mise en page, encre) testée.
   Validation : `npm test` passe.
 - [ ] **4. Collection persistante** : hook `useCollection` (ajouter, retirer, lister) enregistré dans AsyncStorage, testé.
   Validation : une carte ajoutée survit au redémarrage de l'app.
