@@ -19,7 +19,7 @@ export const Burst = memo(function Burst({ size, color }: { size: number; color:
       <Defs>
         <RadialGradient id="burstFade" cx="50%" cy="50%" r="50%">
           <Stop offset="0.25" stopColor={colors.nuit} stopOpacity={0} />
-          <Stop offset="1" stopColor={colors.nuit} stopOpacity={1} />
+          <Stop offset="0.9" stopColor={colors.nuit} stopOpacity={1} />
         </RadialGradient>
       </Defs>
       <G>{rays}</G>

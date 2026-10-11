@@ -271,7 +271,9 @@ export default function RevealScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: 'rgba(14,11,20,0.96)' },
+  // Fond opaque, de la même couleur que le bord des rayons : aucun cercle visible,
+  // et rien de l'écran précédent ne transparaît.
+  screen: { flex: 1, backgroundColor: colors.nuit },
   stage: { flex: 1, overflow: 'visible' },
   center: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center' },
   face: { backfaceVisibility: 'hidden' },
