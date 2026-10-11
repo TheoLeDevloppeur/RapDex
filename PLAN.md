@@ -19,7 +19,7 @@ Une étape = un commit testable. On ne passe à la suivante qu'après validation
   Validation : un écran galerie montre toutes les cartes, toutes différentes.
 - [x] **6. Écran Collection** : compteur, filtres par genre, grille 2 colonnes, case « ? », état vide, bouton « Ajouter une carte ».
   Validation : on voit sa collection, les filtres fonctionnent.
-- [ ] **7. Écran Ajouter** : recherche insensible aux accents, suggestions, sélection, artistes déjà possédés, aucun résultat, bouton de validation (sans animation).
+- [x] **7. Écran Ajouter** : recherche insensible aux accents, suggestions, sélection, artistes déjà possédés, aucun résultat, bouton de validation (sans animation).
   Validation : chercher « lay », ajouter Laylow, la carte apparaît dans la collection.
 - [ ] **8. Écran Détail** : grande carte, genre, date d'ajout, retrait avec confirmation.
   Validation : toucher une carte ouvre son détail, on peut la retirer.

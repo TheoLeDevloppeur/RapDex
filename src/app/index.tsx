@@ -111,11 +111,14 @@ function CollectionCard({ entry, width }: { entry: CollectionEntry; width: numbe
   const artist = getArtist(entry.id);
   if (!artist) return null;
   return (
-    <View
-      accessible
-      accessibilityLabel={`${artist.name}, ${genres[artist.genre].label.toLowerCase()}, ajoutée le ${formatLongDate(entry.addedAt)}`}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${artist.name}, ${genres[artist.genre].label.toLowerCase()}, ajoutée le ${formatLongDate(entry.addedAt)}`}
+      accessibilityHint="Ouvre la carte"
+      onPress={() => router.push({ pathname: '/card/[id]', params: { id: artist.id } })}
+      style={({ pressed }) => (pressed ? styles.cardPressed : undefined)}>
       <ArtistCard artist={artist} width={width} />
-    </View>
+    </Pressable>
   );
 }
 
@@ -170,6 +173,7 @@ const styles = StyleSheet.create({
   devLink: { minHeight: 32, paddingHorizontal: space.sm, justifyContent: 'center', borderRadius: radius.sm, borderWidth: 1, borderColor: colors.trait },
   chips: { paddingBottom: space.md },
   list: { paddingHorizontal: space.lg, gap: GAP, flexGrow: 1 },
+  cardPressed: { transform: [{ scale: 0.97 }] },
   none: { ...type.body, color: colors.brume, textAlign: 'center', paddingVertical: space.xl },
   slot: {
     borderWidth: 2,
