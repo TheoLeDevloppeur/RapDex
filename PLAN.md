@@ -13,7 +13,7 @@ Une étape = un commit testable. On ne passe à la suivante qu'après validation
   Validation : un écran de démo montre la palette et les polices.
 - [x] **3. Données artistes** : type `Artist`, `artists.json` (169 artistes, ajouts toujours en fin de liste), fonction de variante de carte (motif, mise en page, encre) testée.
   Validation : `npm test` passe.
-- [ ] **4. Collection persistante** : hook `useCollection` (ajouter, retirer, lister) enregistré dans AsyncStorage, testé.
+- [x] **4. Collection persistante** : hook `useCollection` (ajouter, retirer, lister) enregistré dans AsyncStorage, testé.
   Validation : une carte ajoutée survit au redémarrage de l'app.
 - [ ] **5. Composant Carte** : format 5:7, 6 motifs, 3 mises en page, versions grille et détail.
   Validation : un écran galerie montre toutes les cartes, toutes différentes.

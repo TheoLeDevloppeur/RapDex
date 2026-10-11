@@ -1,3 +1,4 @@
+import { Link } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -26,6 +27,12 @@ export default function DesignDemo() {
             RAP<Text style={{ color: colors.surligneur }}>DEX</Text>
           </Text>
         </View>
+
+        <Link href="/gallery" asChild>
+          <Pressable accessibilityRole="button" style={({ pressed }) => [styles.primary, pressed && styles.primaryPressed]}>
+            <Text style={styles.primaryText}>Voir la galerie des cartes</Text>
+          </Pressable>
+        </Link>
 
         <CollectionTest />
 
