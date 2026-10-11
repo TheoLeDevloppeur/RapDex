@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Svg, { G, Path } from 'react-native-svg';
 
+import { FixedText } from '@/components/fixed-text';
 import { fonts } from '@/theme/theme';
 
 import { CARD_RATIO } from './artist-card';
@@ -30,9 +31,9 @@ export function CardBack({ width: w }: { width: number }) {
         <G opacity={0.14}>{rays}</G>
       </Svg>
       <View style={[styles.mark, { borderWidth: 1.2 * u, borderRadius: 5 * u, paddingHorizontal: 9 * u, paddingVertical: 6 * u }]}>
-        <Text style={[styles.markText, { fontSize: 30 * u, lineHeight: 26 * u }]}>{'RAP\nDEX'}</Text>
+        <FixedText style={[styles.markText, { fontSize: 30 * u, lineHeight: 26 * u }]}>{'RAP\nDEX'}</FixedText>
       </View>
-      <Text style={[styles.sub, { fontSize: 5 * u, marginTop: 9 * u, paddingHorizontal: 2 * u }]}>Carte artiste · Vu en live</Text>
+      <FixedText style={[styles.sub, { fontSize: 5 * u, marginTop: 9 * u, paddingHorizontal: 2 * u }]}>Carte artiste · Vu en live</FixedText>
     </View>
   );
 }

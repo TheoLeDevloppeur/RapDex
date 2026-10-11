@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type ViewStyle } from 'react-native';
 import Animated, { type AnimatedStyle } from 'react-native-reanimated';
 import Svg, { Line } from 'react-native-svg';
 
+import { FixedText } from '@/components/fixed-text';
 import type { Artist } from '@/data/artists';
 import { formatNumber, formatShortDate } from '@/data/format';
 import { colors, fonts, genres } from '@/theme/theme';
@@ -25,20 +26,20 @@ export function Ticket({ artist, date, band, mainStyle, stubStyle }: Props) {
   return (
     <View style={styles.ticket}>
       <Animated.View style={[styles.main, { borderTopColor: band }, mainStyle]}>
-        <Text style={styles.small}>RapDex · Entrée · Vu en live</Text>
-        <Text style={[styles.name, { fontSize: nameSize, lineHeight: nameSize * 0.95 }]} numberOfLines={1}>
+        <FixedText style={styles.small}>RapDex · Entrée · Vu en live</FixedText>
+        <FixedText style={[styles.name, { fontSize: nameSize, lineHeight: nameSize * 0.95 }]} numberOfLines={1}>
           {artist.name}
-        </Text>
-        <Text style={styles.small}>
+        </FixedText>
+        <FixedText style={styles.small}>
           {genres[artist.genre].label} · {formatShortDate(date)}
-        </Text>
+        </FixedText>
       </Animated.View>
       <Animated.View style={[styles.stub, { borderTopColor: band }, stubStyle]}>
         {/* Perforation entre le billet et le talon. */}
         <Svg width={2} height={TICKET_HEIGHT - 12} style={styles.perforation}>
           <Line x1={1} y1={0} x2={1} y2={TICKET_HEIGHT} stroke="rgba(21,17,29,0.45)" strokeWidth={2} strokeDasharray="5,4" />
         </Svg>
-        <Text style={styles.stubText}>N° {formatNumber(artist.no).slice(1)}</Text>
+        <FixedText style={styles.stubText}>N° {formatNumber(artist.no).slice(1)}</FixedText>
       </Animated.View>
     </View>
   );

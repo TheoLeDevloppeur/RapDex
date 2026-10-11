@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
+  AccessibilityInfo,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -42,6 +43,14 @@ export default function AddScreen() {
       ? 'Aucun résultat'
       : `${results.length} résultat${results.length > 1 ? 's' : ''}`;
 
+  // VoiceOver n'a pas de région « live » : on annonce le nombre de résultats
+  // une fois que l'utilisateur a fini de taper.
+  useEffect(() => {
+    if (!trimmed || Platform.OS !== 'ios') return;
+    const t = setTimeout(() => AccessibilityInfo.announceForAccessibility(label), 700);
+    return () => clearTimeout(t);
+  }, [trimmed, label]);
+
   const confirm = (artist: Artist | null = selected) => {
     if (!artist || has(artist.id)) return;
     add(artist.id);
@@ -70,7 +79,7 @@ export default function AddScreen() {
           contentContainerStyle={styles.list}
           ListHeaderComponent={
             <View style={styles.header}>
-              <Text style={type.title} accessibilityRole="header">
+              <Text style={type.title} accessibilityRole="header" maxFontSizeMultiplier={1.3}>
                 Qui as-tu vu en concert ?
               </Text>
               <Text style={type.bodySmall}>Cherche l’artiste, choisis-le, sa carte rejoint ta collection.</Text>

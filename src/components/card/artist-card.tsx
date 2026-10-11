@@ -1,7 +1,8 @@
 import { memo, useId, useState } from 'react';
-import { type LayoutChangeEvent, StyleSheet, Text, View } from 'react-native';
+import { type LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import Svg, { Defs, Line, LinearGradient, Rect, Stop } from 'react-native-svg';
 
+import { FixedText } from '@/components/fixed-text';
 import { GenreIcon } from '@/components/genre-icon';
 import type { Artist } from '@/data/artists';
 import { cardVariant, type Layout } from '@/data/card-variant';
@@ -58,16 +59,16 @@ export const ArtistCard = memo(function ArtistCard({ artist, width: w, addedAt, 
       />
 
       <View style={styles.top}>
-        <Text style={{ fontFamily: fonts.monoSemiBold, fontSize: 6.6 * u, color: ink }}>{formatNumber(artist.no)}</Text>
+        <FixedText style={{ fontFamily: fonts.monoSemiBold, fontSize: 6.6 * u, color: ink }}>{formatNumber(artist.no)}</FixedText>
         <View
           style={[
             styles.type,
             { backgroundColor: ink, gap: 1.6 * u, paddingVertical: 1.8 * u, paddingLeft: 2.6 * u, paddingRight: 3.2 * u },
           ]}>
           <GenreIcon genre={artist.genre} size={6.8 * u} color={stock} strokeWidth={2.6} />
-          <Text style={{ fontFamily: fonts.monoSemiBold, fontSize: 6 * u, color: stock, textTransform: 'uppercase' }}>
+          <FixedText style={{ fontFamily: fonts.monoSemiBold, fontSize: 6 * u, color: stock, textTransform: 'uppercase' }}>
             {genres[artist.genre].label}
-          </Text>
+          </FixedText>
         </View>
       </View>
 
@@ -77,11 +78,11 @@ export const ArtistCard = memo(function ArtistCard({ artist, width: w, addedAt, 
         <Monogram name={artist.name} layout={layout} u={u} artHeight={art.h} color={stock} />
       </View>
 
-      <Text
+      <FixedText
         numberOfLines={1}
         style={[styles.name, { fontSize: nameSize, lineHeight: nameSize * 1.02, color: ink, paddingTop: 0.6 * u }]}>
         {artist.name}
-      </Text>
+      </FixedText>
 
       {size === 'full' && (
         <View style={{ gap: 2.4 * u }}>
@@ -89,10 +90,10 @@ export const ArtistCard = memo(function ArtistCard({ artist, width: w, addedAt, 
             <Line x1="0" y1="0" x2="100%" y2="0" stroke={ink} strokeWidth={Math.max(1, u)} strokeDasharray={`${1.6 * u},${1.2 * u}`} />
           </Svg>
           <View style={styles.foot}>
-            <Text style={[styles.footText, { fontSize: 4.8 * u, color: ink }]}>Ajoutée le</Text>
-            <Text style={[styles.footText, { fontSize: 4.8 * u, color: ink }]}>
+            <FixedText style={[styles.footText, { fontSize: 4.8 * u, color: ink }]}>Ajoutée le</FixedText>
+            <FixedText style={[styles.footText, { fontSize: 4.8 * u, color: ink }]}>
               {addedAt ? formatShortDate(addedAt) : '--.--.--'}
-            </Text>
+            </FixedText>
           </View>
         </View>
       )}
@@ -132,9 +133,9 @@ function Monogram({
   if (layout === 'giant') {
     const fs = 58 * u;
     return (
-      <Text style={[base, styles.abs, { fontSize: fs, lineHeight: fs * 0.88, left: 4 * u, bottom: 0.5 * u }]}>
+      <FixedText style={[base, styles.abs, { fontSize: fs, lineHeight: fs * 0.88, left: 4 * u, bottom: 0.5 * u }]}>
         {initials(name)}
-      </Text>
+      </FixedText>
     );
   }
 
@@ -144,9 +145,9 @@ function Monogram({
     const longest = Math.max(...words.map((x) => x.length));
     const fs = Math.min(30 * u, (74 * u) / (longest * 0.52), (82 * u) / (words.length * 0.9));
     return (
-      <Text style={[base, styles.abs, { fontSize: fs, lineHeight: fs * 0.9, left: 5 * u, right: 4 * u, bottom: 4 * u }]}>
+      <FixedText style={[base, styles.abs, { fontSize: fs, lineHeight: fs * 0.9, left: 5 * u, right: 4 * u, bottom: 4 * u }]}>
         {words.join('\n')}
-      </Text>
+      </FixedText>
     );
   }
 
@@ -157,7 +158,7 @@ function Monogram({
   const boxH = fs * 1.05;
   const centerX = 3.5 * u + boxH / 2;
   return (
-    <Text
+    <FixedText
       numberOfLines={1}
       style={[
         base,
@@ -173,7 +174,7 @@ function Monogram({
         },
       ]}>
       {name.toUpperCase()}
-    </Text>
+    </FixedText>
   );
 }
 

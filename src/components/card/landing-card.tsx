@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -8,6 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { FixedText } from '@/components/fixed-text';
 import { colors, fonts } from '@/theme/theme';
 
 type Props = {
@@ -45,7 +46,7 @@ export function LandingCard({ children, pending, play, isNew }: Props) {
       {children}
       {isNew && (
         <View style={styles.tag} pointerEvents="none">
-          <Text style={styles.tagText}>NEW</Text>
+          <FixedText style={styles.tagText}>NEW</FixedText>
         </View>
       )}
     </Animated.View>

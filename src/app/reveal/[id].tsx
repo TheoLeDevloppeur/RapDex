@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ArtistCard, CARD_RATIO } from '@/components/card/artist-card';
 import { CardBack } from '@/components/card/card-back';
+import { FixedText } from '@/components/fixed-text';
 import { PrimaryButton } from '@/components/primary-button';
 import { BottomFade, Burst, Flash } from '@/components/reveal/burst';
 import { Ticket } from '@/components/reveal/ticket';
@@ -82,6 +83,13 @@ export default function RevealScreen() {
       showEnd();
       return clearTimers;
     }
+
+    // Avec un lecteur d'écran, l'animation n'apporte rien : on affiche la fin.
+    AccessibilityInfo.isScreenReaderEnabled()
+      .then((on) => {
+        if (on && !finished.current) showEnd();
+      })
+      .catch(() => {});
 
     at(T.ticket, () => {
       ticketOpacity.value = withTiming(1, { duration: 250 });
@@ -217,6 +225,8 @@ export default function RevealScreen() {
     <View style={styles.screen} accessibilityViewIsModal>
       <Animated.View
         pointerEvents="none"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
         style={[
           styles.burst,
           { width: burstSize, height: burstSize, left: width / 2 - burstSize / 2, top: stageCenter - burstSize / 2 },
@@ -224,7 +234,7 @@ export default function RevealScreen() {
         ]}>
         <Burst size={burstSize} color={band} />
       </Animated.View>
-      <View pointerEvents="none" style={[styles.bottomFade, { height: fadeHeight }]}>
+      <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.bottomFade, { height: fadeHeight }]}>
         <BottomFade width={width} height={fadeHeight} />
       </View>
 
@@ -234,31 +244,31 @@ export default function RevealScreen() {
         onPress={skip}
         accessible={false}
         onLayout={(e) => setStageCenter(e.nativeEvent.layout.y + e.nativeEvent.layout.height / 2)}>
-        <Animated.View pointerEvents="none" style={[styles.center, ticketStyle]}>
+        <Animated.View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.center, ticketStyle]}>
           <Ticket artist={artist} date={entry.addedAt} band={band} mainStyle={mainStyle} stubStyle={stubStyle} />
         </Animated.View>
 
         <Animated.View style={[styles.center, cardStyle]}>
           <View style={{ width: cardWidth, height: cardWidth * CARD_RATIO }}>
-            <Animated.View style={[StyleSheet.absoluteFill, styles.face, backStyle]}>
+            <Animated.View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[StyleSheet.absoluteFill, styles.face, backStyle]}>
               <CardBack width={cardWidth} />
             </Animated.View>
             <Animated.View style={[StyleSheet.absoluteFill, styles.face, frontStyle]}>
               <ArtistCard artist={artist} width={cardWidth} size="full" addedAt={entry.addedAt} />
             </Animated.View>
-            <Animated.View style={[styles.stamp, stampStyle]}>
-              <Text style={styles.stampText}>Nouvelle carte</Text>
+            <Animated.View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.stamp, stampStyle]}>
+              <FixedText style={styles.stampText}>Nouvelle carte</FixedText>
             </Animated.View>
           </View>
         </Animated.View>
 
-        <Animated.View pointerEvents="none" style={[styles.center, flashStyle]}>
+        <Animated.View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.center, flashStyle]}>
           <Flash size={cardWidth * 2.2} />
         </Animated.View>
       </Pressable>
 
       <Animated.View style={[styles.copy, outroStyle]}>
-        <Text style={styles.title}>Nouvelle carte !</Text>
+        <Text style={styles.title} accessibilityRole="header" maxFontSizeMultiplier={1.3}>Nouvelle carte !</Text>
         <Text style={[type.body, { color: colors.brume }]}>
           <Text style={styles.strong}>{artist.name}</Text> rejoint ta collection
         </Text>

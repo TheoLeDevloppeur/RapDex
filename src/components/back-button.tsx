@@ -5,19 +5,27 @@ import Svg, { Path } from 'react-native-svg';
 import { colors, fonts, radius, space, touch } from '@/theme/theme';
 
 /** Retour à l'écran précédent, toujours en haut à gauche. */
-export function BackButton({ label = 'Collection' }: { label?: string }) {
+export function BackButton({
+  label = 'Collection',
+  accessibilityLabel = 'Revenir à ma collection',
+}: {
+  label?: string;
+  accessibilityLabel?: string;
+}) {
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Retour à ${label}`}
+      accessibilityLabel={accessibilityLabel}
       onPress={goBack}
       hitSlop={8}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
       <Svg width={22} height={22} viewBox="0 0 24 24">
         <Path d="M15 5l-7 7 7 7" stroke={colors.papier} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </Svg>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.label} maxFontSizeMultiplier={1.5}>
+        {label}
+      </Text>
     </Pressable>
   );
 }

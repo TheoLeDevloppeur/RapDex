@@ -19,7 +19,7 @@ export function PrimaryButton({ label, onPress, disabled = false, icon }: Props)
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [styles.button, disabled ? styles.disabled : pressed ? styles.pressed : null]}>
-      <Text style={[styles.label, disabled && styles.labelDisabled]} numberOfLines={1}>
+      <Text style={[styles.label, disabled && styles.labelDisabled]} numberOfLines={2} maxFontSizeMultiplier={1.5}>
         {icon ? <Text style={styles.icon}>{icon} </Text> : null}
         {label}
       </Text>
@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: space.lg,
+    paddingVertical: space.sm,
     boxShadow: `0 4px 0 ${colors.surligneurOmbre}`,
   },
   pressed: {
@@ -47,6 +48,7 @@ const styles = StyleSheet.create({
   },
   label: {
     ...type.button,
+    textAlign: 'center',
   },
   labelDisabled: {
     color: colors.brume,

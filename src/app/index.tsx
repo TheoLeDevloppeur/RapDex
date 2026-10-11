@@ -15,6 +15,7 @@ import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { ArtistCard, CARD_RATIO } from '@/components/card/artist-card';
 import { LandingCard } from '@/components/card/landing-card';
+import { FixedText } from '@/components/fixed-text';
 import { GenreChips, type GenreFilter } from '@/components/genre-chips';
 import { PrimaryButton } from '@/components/primary-button';
 import { getArtist } from '@/data/artists';
@@ -99,9 +100,11 @@ export default function CollectionScreen() {
         <View style={styles.brandRow}>
           <View style={styles.brand}>
             <View style={styles.brandMark}>
-              <Text style={styles.brandMarkText}>R</Text>
+              <FixedText style={styles.brandMarkText}>R</FixedText>
             </View>
-            <Text style={styles.brandText}>RapDex</Text>
+            <Text style={styles.brandText} maxFontSizeMultiplier={1.3}>
+              RapDex
+            </Text>
           </View>
           {__DEV__ && (
             <Pressable accessibilityRole="button" onPress={() => router.push('/design')} style={styles.devLink}>
@@ -112,8 +115,13 @@ export default function CollectionScreen() {
         <View>
           <Text style={type.label}>Ma collection</Text>
           <View style={styles.counter} accessible accessibilityRole="header" accessibilityLabel={`${shownTotal} ${shownTotal > 1 ? 'cartes' : 'carte'}`}>
-            <Animated.Text style={[type.counter, { color: colors.surligneur }, countStyle]}>{shownTotal}</Animated.Text>
-            <Text style={type.counter}> {shownTotal > 1 ? 'cartes' : 'carte'}</Text>
+            <Animated.Text style={[type.counter, { color: colors.surligneur }, countStyle]} maxFontSizeMultiplier={1.3}>
+              {shownTotal}
+            </Animated.Text>
+            <Text style={type.counter} maxFontSizeMultiplier={1.3}>
+              {' '}
+              {shownTotal > 1 ? 'cartes' : 'carte'}
+            </Text>
           </View>
         </View>
       </View>
@@ -142,7 +150,7 @@ export default function CollectionScreen() {
             <NextSlot width={cardWidth} onPress={openAdd} />
           ) : (
             <LandingCard pending={item.id === pendingId} play={item.id === playingId} isNew={item.id === lastAdded?.id}>
-              <CollectionCard entry={item} width={cardWidth} />
+              <CollectionCard entry={item} width={cardWidth} isNew={item.id === lastAdded?.id} />
             </LandingCard>
           )
         }
@@ -164,13 +172,13 @@ export default function CollectionScreen() {
   );
 }
 
-function CollectionCard({ entry, width }: { entry: CollectionEntry; width: number }) {
+function CollectionCard({ entry, width, isNew }: { entry: CollectionEntry; width: number; isNew: boolean }) {
   const artist = getArtist(entry.id);
   if (!artist) return null;
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${artist.name}, ${genres[artist.genre].label.toLowerCase()}, ajoutée le ${formatLongDate(entry.addedAt)}`}
+      accessibilityLabel={`${isNew ? 'Nouvelle carte, ' : ''}${artist.name}, ${genres[artist.genre].label.toLowerCase()}, ajoutée le ${formatLongDate(entry.addedAt)}`}
       accessibilityHint="Ouvre la carte"
       onPress={() => router.push({ pathname: '/card/[id]', params: { id: artist.id } })}
       style={({ pressed }) => (pressed ? styles.cardPressed : undefined)}>
@@ -191,7 +199,7 @@ function NextSlot({ width, onPress }: { width: number; onPress: () => void }) {
         { width, height: width * CARD_RATIO, borderRadius: width * 0.06 },
         pressed && styles.slotPressed,
       ]}>
-      <Text style={styles.slotMark}>?</Text>
+      <FixedText style={styles.slotMark}>?</FixedText>
       <Text style={styles.slotText}>Prochaine carte</Text>
     </Pressable>
   );
@@ -200,10 +208,12 @@ function NextSlot({ width, onPress }: { width: number; onPress: () => void }) {
 function EmptyState() {
   return (
     <View style={styles.empty}>
-      <View style={styles.ghostCard}>
-        <Text style={styles.ghostMark}>?</Text>
+      <View style={styles.ghostCard} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+        <FixedText style={styles.ghostMark}>?</FixedText>
       </View>
-      <Text style={[type.heading, styles.center]}>Ta collection est vide</Text>
+      <Text style={[type.heading, styles.center]} maxFontSizeMultiplier={1.3} accessibilityRole="header">
+        Ta collection est vide
+      </Text>
       <Text style={[type.body, styles.center, { color: colors.brume, maxWidth: 280 }]}>
         Ajoute la carte du dernier artiste que tu as vu en concert.
       </Text>

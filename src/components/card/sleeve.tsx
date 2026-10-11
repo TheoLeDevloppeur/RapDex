@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { FixedText } from '@/components/fixed-text';
 import type { Artist } from '@/data/artists';
 import { cardVariant } from '@/data/card-variant';
 import { initials } from '@/data/format';
@@ -14,9 +15,9 @@ export function Sleeve({ artist, size = 50 }: { artist: Artist; size?: number })
   return (
     <View style={[styles.sleeve, { width: size, height: size, borderRadius: size * 0.18, backgroundColor: ink }]}>
       <CardPattern pattern={pattern} width={size} height={size} color={stock} />
-      <Text style={[styles.mono, { color: stock, fontSize: size * 0.6, lineHeight: size * 0.62, left: size * 0.1 }]}>
+      <FixedText style={[styles.mono, { color: stock, fontSize: size * 0.6, lineHeight: size * 0.62, left: size * 0.1 }]}>
         {initials(artist.name)}
-      </Text>
+      </FixedText>
     </View>
   );
 }

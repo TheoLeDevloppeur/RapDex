@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,8 +16,18 @@ import { colors, fonts, genres, radius, space, touch, type } from '@/theme/theme
 export default function CardDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { entries, remove } = useCollection();
-  const { width, height } = useWindowDimensions();
+  const { width, height, fontScale } = useWindowDimensions();
   const [confirming, setConfirming] = useState(false);
+  const question = useRef<Text>(null);
+
+  // À l'ouverture de la confirmation, VoiceOver lit directement la question.
+  useEffect(() => {
+    if (!confirming) return;
+    const t = setTimeout(() => {
+      if (question.current) AccessibilityInfo.sendAccessibilityEvent(question.current, 'focus');
+    }, 200);
+    return () => clearTimeout(t);
+  }, [confirming]);
 
   const artist = getArtist(id);
   // Après un retrait, on garde la carte affichée pendant l'animation de retour.
@@ -31,7 +41,9 @@ export default function CardDetailScreen() {
           <BackButton />
         </View>
         <View style={styles.missing}>
-          <Text style={[type.heading, styles.center]}>Carte introuvable</Text>
+          <Text style={[type.heading, styles.center]} accessibilityRole="header" maxFontSizeMultiplier={1.3}>
+            Carte introuvable
+          </Text>
           <Text style={[type.body, styles.center, { color: colors.brume }]}>
             Cette carte n’est pas dans ta collection.
           </Text>
@@ -41,8 +53,10 @@ export default function CardDetailScreen() {
   }
 
   const genre = genres[artist.genre];
-  // La carte occupe l'essentiel de l'écran sans pousser les infos hors de vue.
-  const cardWidth = Math.min(width * 0.78, 320, (height - 330) / CARD_RATIO);
+  // La carte occupe l'essentiel de l'écran sans pousser les infos hors de vue,
+  // même quand le texte du téléphone est agrandi.
+  const reserved = 330 + Math.max(0, fontScale - 1) * 160;
+  const cardWidth = Math.max(140, Math.min(width * 0.78, 320, (height - reserved) / CARD_RATIO));
 
   const confirmRemove = () => {
     setRemovedEntry(entry);
@@ -82,7 +96,7 @@ export default function CardDetailScreen() {
       <View style={styles.bottom}>
         {confirming ? (
           <Animated.View entering={FadeIn.duration(150)} style={styles.confirm}>
-            <Text style={[type.body, styles.center]}>
+            <Text ref={question} style={[type.body, styles.center]}>
               Retirer la carte <Text style={styles.strong}>{artist.name}</Text> ?
             </Text>
             <View style={styles.confirmRow}>
