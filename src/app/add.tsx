@@ -45,7 +45,8 @@ export default function AddScreen() {
   const confirm = (artist: Artist | null = selected) => {
     if (!artist || has(artist.id)) return;
     add(artist.id);
-    router.back();
+    // La révélation remplace cet écran : en la fermant, on retombe sur la collection.
+    router.replace({ pathname: '/reveal/[id]', params: { id: artist.id } });
   };
 
   const onSubmit = () => {

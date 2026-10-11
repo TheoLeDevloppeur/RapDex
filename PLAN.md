@@ -21,7 +21,7 @@ Une étape = un commit testable. On ne passe à la suivante qu'après validation
   Validation : on voit sa collection, les filtres fonctionnent.
 - [x] **7. Écran Ajouter** : recherche insensible aux accents, suggestions, sélection, artistes déjà possédés, aucun résultat, bouton de validation (sans animation).
   Validation : chercher « lay », ajouter Laylow, la carte apparaît dans la collection.
-- [ ] **8. Écran Détail** : grande carte, genre, date d'ajout, retrait avec confirmation.
+- [x] **8. Écran Détail** : grande carte, genre, date d'ajout, retrait avec confirmation.
   Validation : toucher une carte ouvre son détail, on peut la retirer.
 - [ ] **9. Le temps fort** : billet, déchirure, retournement, rayons, tampon ; vibration, passage au toucher, fondu si mouvement réduit.
   Validation : ça donne envie d'ajouter une carte.

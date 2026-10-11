@@ -41,8 +41,17 @@ function AppShell() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: colors.nuit },
-        }}
-      />
+        }}>
+        <Stack.Screen
+          name="reveal/[id]"
+          options={{
+            presentation: 'transparentModal',
+            animation: 'fade',
+            gestureEnabled: false,
+            contentStyle: { backgroundColor: 'transparent' },
+          }}
+        />
+      </Stack>
     </>
   );
 }
