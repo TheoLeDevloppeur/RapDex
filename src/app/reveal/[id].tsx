@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArtistCard, CARD_RATIO } from '@/components/card/artist-card';
 import { CardBack } from '@/components/card/card-back';
 import { PrimaryButton } from '@/components/primary-button';
-import { Burst, Flash } from '@/components/reveal/burst';
+import { BottomFade, Burst, Flash } from '@/components/reveal/burst';
 import { Ticket } from '@/components/reveal/ticket';
 import { getArtist } from '@/data/artists';
 import { cardVariant } from '@/data/card-variant';
@@ -41,7 +41,9 @@ const vibrate = (fn: () => Promise<void>) => {
 export default function RevealScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { entries } = useCollection();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  // Centre vertical de la carte, mesuré une fois la mise en page faite.
+  const [stageCenter, setStageCenter] = useState(height * 0.38);
   const reduceMotion = useReducedMotion();
   const artist = getArtist(id);
   const entry = entries.find((e) => e.id === id);
@@ -207,15 +209,31 @@ export default function RevealScreen() {
   const { ink: inkIndex } = cardVariant(artist);
   const band = genres[artist.genre].inks[inkIndex].stock;
   const cardWidth = Math.min(width * 0.6, 240);
-  const burstSize = Math.max(width * 1.7, 640);
+  // Assez grand pour couvrir tout l'écran depuis le centre de la carte, même en tournant.
+  const burstSize = Math.hypot(width, height) * 2;
+  const fadeHeight = height * 0.5;
 
   return (
-    <SafeAreaView style={styles.screen} accessibilityViewIsModal>
-      <Pressable style={styles.stage} onPress={skip} accessible={false}>
-        <Animated.View pointerEvents="none" style={[styles.center, burstStyle]}>
-          <Burst size={burstSize} color={band} />
-        </Animated.View>
+    <View style={styles.screen} accessibilityViewIsModal>
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.burst,
+          { width: burstSize, height: burstSize, left: width / 2 - burstSize / 2, top: stageCenter - burstSize / 2 },
+          burstStyle,
+        ]}>
+        <Burst size={burstSize} color={band} />
+      </Animated.View>
+      <View pointerEvents="none" style={[styles.bottomFade, { height: fadeHeight }]}>
+        <BottomFade width={width} height={fadeHeight} />
+      </View>
 
+      <SafeAreaView style={styles.content}>
+      <Pressable
+        style={styles.stage}
+        onPress={skip}
+        accessible={false}
+        onLayout={(e) => setStageCenter(e.nativeEvent.layout.y + e.nativeEvent.layout.height / 2)}>
         <Animated.View pointerEvents="none" style={[styles.center, ticketStyle]}>
           <Ticket artist={artist} date={entry.addedAt} band={band} mainStyle={mainStyle} stubStyle={stubStyle} />
         </Animated.View>
@@ -266,14 +284,17 @@ export default function RevealScreen() {
           Touche pour passer
         </Text>
       )}
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // Fond opaque, de la même couleur que le bord des rayons : aucun cercle visible,
-  // et rien de l'écran précédent ne transparaît.
-  screen: { flex: 1, backgroundColor: colors.nuit },
+  // Fond opaque : rien de l'écran précédent ne transparaît.
+  screen: { flex: 1, backgroundColor: colors.nuit, overflow: 'hidden' },
+  content: { flex: 1 },
+  burst: { position: 'absolute' },
+  bottomFade: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   stage: { flex: 1, overflow: 'visible' },
   center: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center' },
   face: { backfaceVisibility: 'hidden' },
