@@ -1,10 +1,20 @@
-import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { FlatList, Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { ArtistCard, CARD_RATIO } from '@/components/card/artist-card';
+import { LandingCard } from '@/components/card/landing-card';
 import { GenreChips, type GenreFilter } from '@/components/genre-chips';
 import { PrimaryButton } from '@/components/primary-button';
 import { getArtist } from '@/data/artists';
@@ -20,10 +30,51 @@ const CTA_SPACE = 120;
 type GridItem = CollectionEntry | 'slot';
 
 export default function CollectionScreen() {
-  const { entries } = useCollection();
+  const { entries, lastAdded, markLanded } = useCollection();
   const [filter, setFilter] = useState<GenreFilter>('all');
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const reduceMotion = useReducedMotion();
+  const listRef = useRef<FlatList<GridItem>>(null);
+
+  // Arrivée de la nouvelle carte, jouée quand on revient sur la collection.
+  const pendingId = lastAdded && !lastAdded.landed ? lastAdded.id : null;
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [bumped, setBumped] = useState(true);
+  const countScale = useSharedValue(1);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!pendingId) return;
+      setFilter('all');
+      listRef.current?.scrollToOffset({ offset: 0, animated: false });
+      setBumped(false);
+      setPlayingId(pendingId);
+      const bump = setTimeout(
+        () => {
+          setBumped(true);
+          if (!reduceMotion) {
+            countScale.value = withSequence(
+              withTiming(1.35, { duration: 180 }),
+              withTiming(1, { duration: 280, easing: Easing.out(Easing.back(2)) })
+            );
+          }
+          if (Platform.OS !== 'web') Haptics.selectionAsync().catch(() => {});
+        },
+        reduceMotion ? 0 : 560
+      );
+      const done = setTimeout(() => {
+        markLanded();
+        setPlayingId(null);
+      }, reduceMotion ? 0 : 900);
+      return () => {
+        clearTimeout(bump);
+        clearTimeout(done);
+      };
+    }, [pendingId, reduceMotion, markLanded, countScale])
+  );
+
+  const countStyle = useAnimatedStyle(() => ({ transform: [{ scale: countScale.value }, { rotate: `${(countScale.value - 1) * -12}deg` }] }));
 
   const counts = useMemo(() => {
     const c: Record<GenreFilter, number> = { all: entries.length, rap: 0, chant: 0, dj: 0 };
@@ -36,6 +87,8 @@ export default function CollectionScreen() {
 
   const shown = filter === 'all' ? entries : entries.filter((e) => getArtist(e.id)?.genre === filter);
   const total = entries.length;
+  // Tant que la carte n'est pas tombée, le compteur affiche encore l'ancien total.
+  const shownTotal = pendingId && (!playingId || !bumped) ? total - 1 : total;
   const items: GridItem[] = total > 0 ? [...shown, 'slot'] : [];
   const cardWidth = (Math.min(width, 600) - space.lg * 2 - GAP) / 2;
   const openAdd = () => router.push('/add');
@@ -58,9 +111,10 @@ export default function CollectionScreen() {
         </View>
         <View>
           <Text style={type.label}>Ma collection</Text>
-          <Text style={type.counter} accessibilityRole="header">
-            <Text style={{ color: colors.surligneur }}>{total}</Text> {total > 1 ? 'cartes' : 'carte'}
-          </Text>
+          <View style={styles.counter} accessible accessibilityRole="header" accessibilityLabel={`${shownTotal} ${shownTotal > 1 ? 'cartes' : 'carte'}`}>
+            <Animated.Text style={[type.counter, { color: colors.surligneur }, countStyle]}>{shownTotal}</Animated.Text>
+            <Text style={type.counter}> {shownTotal > 1 ? 'cartes' : 'carte'}</Text>
+          </View>
         </View>
       </View>
 
@@ -71,6 +125,7 @@ export default function CollectionScreen() {
       )}
 
       <FlatList
+        ref={listRef}
         data={items}
         keyExtractor={(item) => (item === 'slot' ? 'slot' : item.id)}
         numColumns={2}
@@ -86,7 +141,9 @@ export default function CollectionScreen() {
           item === 'slot' ? (
             <NextSlot width={cardWidth} onPress={openAdd} />
           ) : (
-            <CollectionCard entry={item} width={cardWidth} />
+            <LandingCard pending={item.id === pendingId} play={item.id === playingId} isNew={item.id === lastAdded?.id}>
+              <CollectionCard entry={item} width={cardWidth} />
+            </LandingCard>
           )
         }
       />
@@ -171,8 +228,10 @@ const styles = StyleSheet.create({
   brandMarkText: { fontFamily: fonts.display, fontSize: 18, color: colors.encre, includeFontPadding: false },
   brandText: { fontFamily: fonts.display, fontSize: 22, color: colors.papier, textTransform: 'uppercase', letterSpacing: 0.5 },
   devLink: { minHeight: 32, paddingHorizontal: space.sm, justifyContent: 'center', borderRadius: radius.sm, borderWidth: 1, borderColor: colors.trait },
+  counter: { flexDirection: 'row', alignItems: 'flex-end', alignSelf: 'flex-start' },
   chips: { paddingBottom: space.md },
-  list: { paddingHorizontal: space.lg, gap: GAP, flexGrow: 1 },
+  // paddingTop : de la place pour l'étiquette « NEW » qui dépasse de la première carte.
+  list: { paddingHorizontal: space.lg, paddingTop: space.sm + 2, gap: GAP, flexGrow: 1 },
   cardPressed: { transform: [{ scale: 0.97 }] },
   none: { ...type.body, color: colors.brume, textAlign: 'center', paddingVertical: space.xl },
   slot: {

@@ -19,6 +19,12 @@ type CollectionContextValue = {
   /** Ajoute la carte et renvoie true, ou false si elle était déjà là. */
   add: (id: string) => boolean;
   remove: (id: string) => void;
+  /**
+   * La dernière carte ajoutée pendant cette session (étiquette « NEW »).
+   * landed passe à true une fois que la collection a joué son animation d'arrivée.
+   */
+  lastAdded: { id: string; landed: boolean } | null;
+  markLanded: () => void;
 };
 
 const CollectionContext = createContext<CollectionContextValue | null>(null);
@@ -56,13 +62,30 @@ export function CollectionProvider({ children }: { children: React.ReactNode }) 
     return true;
   }, []);
 
-  const add = useCallback((id: string) => commit(addCard(current.current, id)), [commit]);
-  const remove = useCallback((id: string) => void commit(removeCard(current.current, id)), [commit]);
+  const [lastAdded, setLastAdded] = useState<{ id: string; landed: boolean } | null>(null);
+
+  const add = useCallback(
+    (id: string) => {
+      const added = commit(addCard(current.current, id));
+      if (added) setLastAdded({ id, landed: false });
+      return added;
+    },
+    [commit]
+  );
+  const remove = useCallback(
+    (id: string) => {
+      if (commit(removeCard(current.current, id))) {
+        setLastAdded((last) => (last?.id === id ? null : last));
+      }
+    },
+    [commit]
+  );
+  const markLanded = useCallback(() => setLastAdded((last) => (last ? { ...last, landed: true } : last)), []);
   const has = useCallback((id: string) => hasCard(entries, id), [entries]);
 
   const value = useMemo(
-    () => ({ ready, entries: newestFirst(entries), has, add, remove }),
-    [ready, entries, has, add, remove]
+    () => ({ ready, entries: newestFirst(entries), has, add, remove, lastAdded, markLanded }),
+    [ready, entries, has, add, remove, lastAdded, markLanded]
   );
 
   return <CollectionContext.Provider value={value}>{children}</CollectionContext.Provider>;

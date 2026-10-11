@@ -58,5 +58,26 @@ describe('useCollection', () => {
 
     const second = await mountCollection();
     expect(second.result.current.entries.map((e) => e.id)).toEqual(['laylow', 'damso']);
+    // « NEW » ne vaut que pour la session en cours.
+    expect(second.result.current.lastAdded).toBeNull();
+  });
+
+  it('retient la dernière carte ajoutée jusqu’à son arrivée', async () => {
+    const { result } = await mountCollection();
+    await act(async () => {
+      result.current.add('damso');
+      result.current.add('laylow');
+    });
+    expect(result.current.lastAdded).toEqual({ id: 'laylow', landed: false });
+
+    await act(async () => {
+      result.current.markLanded();
+    });
+    expect(result.current.lastAdded).toEqual({ id: 'laylow', landed: true });
+
+    await act(async () => {
+      result.current.remove('laylow');
+    });
+    expect(result.current.lastAdded).toBeNull();
   });
 });

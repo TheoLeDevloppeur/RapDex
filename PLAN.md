@@ -23,7 +23,7 @@ Une étape = un commit testable. On ne passe à la suivante qu'après validation
   Validation : chercher « lay », ajouter Laylow, la carte apparaît dans la collection.
 - [x] **8. Écran Détail** : grande carte, genre, date d'ajout, retrait avec confirmation.
   Validation : toucher une carte ouvre son détail, on peut la retirer.
-- [ ] **9. Le temps fort** : billet, déchirure, retournement, rayons, tampon ; vibration, passage au toucher, fondu si mouvement réduit.
+- [x] **9. Le temps fort** : billet, déchirure, retournement, rayons, tampon ; vibration, passage au toucher, fondu si mouvement réduit.
   Validation : ça donne envie d'ajouter une carte.
 - [ ] **10. Retour en collection** : la carte atterrit, le compteur grimpe, étiquette « NEW ».
   Validation : l'enchaînement ajout → collection est fluide.
