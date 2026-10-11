@@ -9,10 +9,10 @@ Une étape = un commit testable. On ne passe à la suivante qu'après validation
   Validation : `node -v` affiche une version.
 - [x] **1. Squelette** : projet Expo SDK 57 + TypeScript, expo-router (écrans dans `src/app/`), lint et typecheck.
   Validation : l'app s'ouvre sur le téléphone et affiche « RapDex ».
-- [ ] **2. Système de design** : `theme.ts` (couleurs, espacements, rayons), chargement des trois polices.
+- [x] **2. Système de design** : `theme.ts` (couleurs, espacements, rayons), chargement des trois polices.
   Validation : un écran de démo montre la palette et les polices.
-- [ ] **3. Données artistes** : type `Artist`, `artists.json` (36 artistes), fonction de variante de carte (motif, mise en page, encre) testée.
-  Validation : les tests passent.
+- [ ] **3. Données artistes** : type `Artist`, `artists.json` (169 artistes, ajouts toujours en fin de liste), fonction de variante de carte (motif, mise en page, encre) testée.
+  Validation : `npm test` passe.
 - [ ] **4. Collection persistante** : hook `useCollection` (ajouter, retirer, lister) enregistré dans AsyncStorage, testé.
   Validation : une carte ajoutée survit au redémarrage de l'app.
 - [ ] **5. Composant Carte** : format 5:7, 6 motifs, 3 mises en page, versions grille et détail.
