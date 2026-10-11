@@ -7,7 +7,7 @@ Une étape = un commit testable. On ne passe à la suivante qu'après validation
 
 - [x] **0. Prérequis** : Node.js LTS installé, Expo Go sur le téléphone.
   Validation : `node -v` affiche une version.
-- [ ] **1. Squelette** : projet Expo SDK 57 + TypeScript, expo-router (écrans dans `src/app/`), lint et typecheck.
+- [x] **1. Squelette** : projet Expo SDK 57 + TypeScript, expo-router (écrans dans `src/app/`), lint et typecheck.
   Validation : l'app s'ouvre sur le téléphone et affiche « RapDex ».
 - [ ] **2. Système de design** : `theme.ts` (couleurs, espacements, rayons), chargement des trois polices.
   Validation : un écran de démo montre la palette et les polices.
