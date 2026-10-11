@@ -225,7 +225,8 @@ export default function RevealScreen() {
   }
 
   const { ink: inkIndex } = cardVariant(artist);
-  const band = genres[artist.genre].inks[inkIndex].stock;
+  const cardInks = genres[artist.genre].inks[inkIndex];
+  const band = cardInks.stock;
   const cardWidth = Math.min(width * 0.6, 240);
   // Assez grand pour couvrir tout l'écran depuis le centre de la carte, même en tournant.
   const burstSize = Math.hypot(width, height) * 2;
@@ -261,7 +262,7 @@ export default function RevealScreen() {
         <Animated.View style={[styles.center, cardStyle]}>
           <View style={{ width: cardWidth, height: cardWidth * CARD_RATIO }}>
             <Animated.View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[StyleSheet.absoluteFill, styles.face, backStyle]}>
-              <CardBack width={cardWidth} />
+              <CardBack width={cardWidth} background={cardInks.ink} mark={cardInks.stock} />
             </Animated.View>
             <Animated.View style={[StyleSheet.absoluteFill, styles.face, frontStyle]}>
               <ArtistCard artist={artist} width={cardWidth} size="full" addedAt={entry.addedAt} />
