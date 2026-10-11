@@ -1,12 +1,13 @@
-import { Link } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ArtistCard } from '@/components/card/artist-card';
 import { ARTISTS, getArtist } from '@/data/artists';
 import { useCollection } from '@/hooks/use-collection';
 import { colors, fonts, genres, radius, space, touch, type, type Genre } from '@/theme/theme';
 
-// Écran de démo des étapes 2 à 4 : il sera remplacé par la Collection à l'étape 6.
+// Écran de démo des étapes 2 à 5 : il sera remplacé par la Collection à l'étape 6.
 
 const SALLE: { name: string; value: string; use: string }[] = [
   { name: 'Nuit', value: colors.nuit, use: 'Fond' },
@@ -22,17 +23,18 @@ export default function DesignDemo() {
     <SafeAreaView style={styles.screen} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <Text style={type.label}>Étape 2 · Système de design</Text>
+          <Text style={type.label}>Démo · étapes 2 à 5</Text>
           <Text style={styles.brand}>
             RAP<Text style={{ color: colors.surligneur }}>DEX</Text>
           </Text>
         </View>
 
-        <Link href="/gallery" asChild>
-          <Pressable accessibilityRole="button" style={({ pressed }) => [styles.primary, pressed && styles.primaryPressed]}>
-            <Text style={styles.primaryText}>Voir la galerie des cartes</Text>
-          </Pressable>
-        </Link>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push('/gallery')}
+          style={({ pressed }) => [styles.primary, pressed && styles.primaryPressed]}>
+          <Text style={styles.primaryText}>Voir la galerie des cartes</Text>
+        </Pressable>
 
         <CollectionTest />
 
@@ -106,6 +108,8 @@ export default function DesignDemo() {
 /** Test manuel de l'étape 4 : ajoute des cartes, ferme l'app, rouvre-la. */
 function CollectionTest() {
   const { entries, has, add, remove } = useCollection();
+  const { width } = useWindowDimensions();
+  const cardWidth = (width - space.lg * 2 - space.md) / 2;
 
   const addRandom = () => {
     const free = ARTISTS.filter((a) => !has(a.id));
@@ -118,11 +122,12 @@ function CollectionTest() {
         <Text style={{ color: colors.surligneur }}>{entries.length}</Text>
         {entries.length > 1 ? ' cartes' : ' carte'}
       </Text>
-      {entries.slice(0, 5).map((e) => (
-        <Text key={e.id} style={type.body}>
-          {getArtist(e.id)?.name} <Text style={type.mono}>· ajoutée le {e.addedAt}</Text>
-        </Text>
-      ))}
+      <View style={styles.cards}>
+        {entries.slice(0, 6).map((e) => {
+          const artist = getArtist(e.id);
+          return artist ? <ArtistCard key={e.id} artist={artist} width={cardWidth} /> : null;
+        })}
+      </View>
       <Pressable
         accessibilityRole="button"
         onPress={addRandom}
@@ -194,6 +199,7 @@ const styles = StyleSheet.create({
   },
   primaryPressed: { transform: [{ translateY: 3 }], boxShadow: `0 1px 0 ${colors.surligneurOmbre}` },
   primaryText: { ...type.button, color: colors.encre },
+  cards: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md },
   secondary: {
     minHeight: touch.min + 4,
     borderRadius: radius.md + 2,
