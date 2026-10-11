@@ -1,211 +1,202 @@
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useMemo, useState } from 'react';
+import { FlatList, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
-import { ArtistCard } from '@/components/card/artist-card';
-import { ARTISTS, getArtist } from '@/data/artists';
+import { ArtistCard, CARD_RATIO } from '@/components/card/artist-card';
+import { GenreChips, type GenreFilter } from '@/components/genre-chips';
+import { PrimaryButton } from '@/components/primary-button';
+import { getArtist } from '@/data/artists';
+import type { CollectionEntry } from '@/data/collection';
+import { formatLongDate } from '@/data/format';
 import { useCollection } from '@/hooks/use-collection';
-import { colors, fonts, genres, radius, space, touch, type, type Genre } from '@/theme/theme';
+import { colors, fonts, genres, radius, space, type } from '@/theme/theme';
 
-// Écran de démo des étapes 2 à 5 : il sera remplacé par la Collection à l'étape 6.
+const GAP = space.md;
+/** Hauteur réservée en bas de liste pour ne pas cacher de carte sous le bouton. */
+const CTA_SPACE = 120;
 
-const SALLE: { name: string; value: string; use: string }[] = [
-  { name: 'Nuit', value: colors.nuit, use: 'Fond' },
-  { name: 'Coulisse', value: colors.coulisse, use: 'Surfaces' },
-  { name: 'Trait', value: colors.trait, use: 'Bordures' },
-  { name: 'Papier', value: colors.papier, use: 'Texte' },
-  { name: 'Brume', value: colors.brume, use: 'Texte secondaire' },
-  { name: 'Surligneur', value: colors.surligneur, use: 'Action' },
-];
+type GridItem = CollectionEntry | 'slot';
 
-export default function DesignDemo() {
+export default function CollectionScreen() {
+  const { entries } = useCollection();
+  const [filter, setFilter] = useState<GenreFilter>('all');
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+
+  const counts = useMemo(() => {
+    const c: Record<GenreFilter, number> = { all: entries.length, rap: 0, chant: 0, dj: 0 };
+    for (const e of entries) {
+      const a = getArtist(e.id);
+      if (a) c[a.genre]++;
+    }
+    return c;
+  }, [entries]);
+
+  const shown = filter === 'all' ? entries : entries.filter((e) => getArtist(e.id)?.genre === filter);
+  const total = entries.length;
+  const items: GridItem[] = total > 0 ? [...shown, 'slot'] : [];
+  const cardWidth = (Math.min(width, 600) - space.lg * 2 - GAP) / 2;
+  const openAdd = () => router.push('/add');
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.header}>
-          <Text style={type.label}>Démo · étapes 2 à 5</Text>
-          <Text style={styles.brand}>
-            RAP<Text style={{ color: colors.surligneur }}>DEX</Text>
+      <View style={styles.head}>
+        <View style={styles.brandRow}>
+          <View style={styles.brand}>
+            <View style={styles.brandMark}>
+              <Text style={styles.brandMarkText}>R</Text>
+            </View>
+            <Text style={styles.brandText}>RapDex</Text>
+          </View>
+          {__DEV__ && (
+            <Pressable accessibilityRole="button" onPress={() => router.push('/design')} style={styles.devLink}>
+              <Text style={type.label}>Dev</Text>
+            </Pressable>
+          )}
+        </View>
+        <View>
+          <Text style={type.label}>Ma collection</Text>
+          <Text style={type.counter} accessibilityRole="header">
+            <Text style={{ color: colors.surligneur }}>{total}</Text> {total > 1 ? 'cartes' : 'carte'}
           </Text>
         </View>
+      </View>
 
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => router.push('/gallery')}
-          style={({ pressed }) => [styles.primary, pressed && styles.primaryPressed]}>
-          <Text style={styles.primaryText}>Voir la galerie des cartes</Text>
-        </Pressable>
+      {total > 0 && (
+        <View style={styles.chips}>
+          <GenreChips value={filter} onChange={setFilter} counts={counts} />
+        </View>
+      )}
 
-        <CollectionTest />
+      <FlatList
+        data={items}
+        keyExtractor={(item) => (item === 'slot' ? 'slot' : item.id)}
+        numColumns={2}
+        columnWrapperStyle={{ gap: GAP }}
+        contentContainerStyle={[styles.list, { paddingBottom: CTA_SPACE + insets.bottom }]}
+        ListHeaderComponent={
+          shown.length === 0 && total > 0 && filter !== 'all' ? (
+            <Text style={styles.none}>Aucune carte {genres[filter].label} pour l’instant.</Text>
+          ) : null
+        }
+        ListEmptyComponent={<EmptyState />}
+        renderItem={({ item }) =>
+          item === 'slot' ? (
+            <NextSlot width={cardWidth} onPress={openAdd} />
+          ) : (
+            <CollectionCard entry={item} width={cardWidth} />
+          )
+        }
+      />
 
-        <Section title="La salle">
-          <View style={styles.swatches}>
-            {SALLE.map((c) => (
-              <View key={c.name} style={styles.swatch}>
-                <View style={[styles.swatchColor, { backgroundColor: c.value }]} />
-                <View style={styles.swatchText}>
-                  <Text style={styles.swatchName}>{c.name}</Text>
-                  <Text style={styles.swatchMeta}>{c.value}</Text>
-                  <Text style={styles.swatchMeta}>{c.use}</Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        </Section>
-
-        <Section title="Les encres de genre">
-          {(Object.keys(genres) as Genre[]).map((g) => (
-            <View key={g} style={styles.inkRow}>
-              <Text style={[styles.inkLabel, { color: genres[g].color }]}>{genres[g].label}</Text>
-              <View style={styles.inkPairs}>
-                {genres[g].inks.map((p) => (
-                  <View key={p.stock} style={[styles.miniCard, { backgroundColor: p.stock }]}>
-                    <View style={[styles.miniArt, { backgroundColor: p.ink }]}>
-                      <Text style={[styles.miniMono, { color: p.stock }]}>{genres[g].label.slice(0, 2)}</Text>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            </View>
-          ))}
-        </Section>
-
-        <Section title="Typographie">
-          <View style={styles.specimen}>
-            <Text style={type.label}>Big Shoulders Display · titres</Text>
-            <Text style={type.counter}>
-              <Text style={{ color: colors.surligneur }}>12</Text>
-              <Text style={{ color: colors.papier }}> cartes</Text>
-            </Text>
-          </View>
-          <View style={styles.specimen}>
-            <Text style={type.label}>Schibsted Grotesk · interface</Text>
-            <Text style={[type.body, { color: colors.papier }]}>
-              Ajoute la carte des artistes que tu as vus en live.
-            </Text>
-          </View>
-          <View style={styles.specimen}>
-            <Text style={type.label}>Martian Mono · numéros et dates</Text>
-            <Text style={[type.mono, { color: colors.papier }]}>#014 · AJOUTÉE LE 14.09.26</Text>
-          </View>
-        </Section>
-
-        <Section title="Bouton principal">
-          <Pressable
-            accessibilityRole="button"
-            style={({ pressed }) => [styles.primary, pressed && styles.primaryPressed]}>
-            <Text style={styles.primaryText}>+ Ajouter une carte</Text>
-          </Pressable>
-          <Text style={[type.bodySmall, { color: colors.brume }]}>
-            Hauteur {touch.primary} px. Toutes les zones de tap font au moins {touch.min} px.
-          </Text>
-        </Section>
-      </ScrollView>
+      <View style={[styles.ctaBar, { paddingBottom: insets.bottom + space.lg }]} pointerEvents="box-none">
+        <Svg width="100%" height="100%" style={StyleSheet.absoluteFill} pointerEvents="none">
+          <Defs>
+            <LinearGradient id="ctaFade" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor={colors.nuit} stopOpacity={0} />
+              <Stop offset="0.4" stopColor={colors.nuit} stopOpacity={1} />
+            </LinearGradient>
+          </Defs>
+          <Rect width="100%" height="100%" fill="url(#ctaFade)" />
+        </Svg>
+        <PrimaryButton icon="+" label="Ajouter une carte" onPress={openAdd} />
+      </View>
     </SafeAreaView>
   );
 }
 
-/** Test manuel de l'étape 4 : ajoute des cartes, ferme l'app, rouvre-la. */
-function CollectionTest() {
-  const { entries, has, add, remove } = useCollection();
-  const { width } = useWindowDimensions();
-  const cardWidth = (width - space.lg * 2 - space.md) / 2;
-
-  const addRandom = () => {
-    const free = ARTISTS.filter((a) => !has(a.id));
-    if (free.length) add(free[Math.floor(Math.random() * free.length)].id);
-  };
-
+function CollectionCard({ entry, width }: { entry: CollectionEntry; width: number }) {
+  const artist = getArtist(entry.id);
+  if (!artist) return null;
   return (
-    <Section title="Test de la collection">
-      <Text style={type.counter}>
-        <Text style={{ color: colors.surligneur }}>{entries.length}</Text>
-        {entries.length > 1 ? ' cartes' : ' carte'}
-      </Text>
-      <View style={styles.cards}>
-        {entries.slice(0, 6).map((e) => {
-          const artist = getArtist(e.id);
-          return artist ? <ArtistCard key={e.id} artist={artist} width={cardWidth} /> : null;
-        })}
-      </View>
-      <Pressable
-        accessibilityRole="button"
-        onPress={addRandom}
-        style={({ pressed }) => [styles.primary, pressed && styles.primaryPressed]}>
-        <Text style={styles.primaryText}>+ Ajouter un artiste au hasard</Text>
-      </Pressable>
-      {entries.length > 0 && (
-        <Pressable accessibilityRole="button" onPress={() => remove(entries[0].id)} style={styles.secondary}>
-          <Text style={[type.button, { color: colors.papier }]}>Retirer la dernière carte</Text>
-        </Pressable>
-      )}
-      <Text style={type.bodySmall}>Ajoute quelques cartes, ferme complètement l’app, puis rouvre-la.</Text>
-    </Section>
+    <View
+      accessible
+      accessibilityLabel={`${artist.name}, ${genres[artist.genre].label.toLowerCase()}, ajoutée le ${formatLongDate(entry.addedAt)}`}>
+      <ArtistCard artist={artist} width={width} />
+    </View>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+/** Case vide en fin de grille : invite à ajouter la prochaine carte. */
+function NextSlot({ width, onPress }: { width: number; onPress: () => void }) {
   return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      {children}
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Ajouter une carte"
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.slot,
+        { width, height: width * CARD_RATIO, borderRadius: width * 0.06 },
+        pressed && styles.slotPressed,
+      ]}>
+      <Text style={styles.slotMark}>?</Text>
+      <Text style={styles.slotText}>Prochaine carte</Text>
+    </Pressable>
+  );
+}
+
+function EmptyState() {
+  return (
+    <View style={styles.empty}>
+      <View style={styles.ghostCard}>
+        <Text style={styles.ghostMark}>?</Text>
+      </View>
+      <Text style={[type.heading, styles.center]}>Ta collection est vide</Text>
+      <Text style={[type.body, styles.center, { color: colors.brume, maxWidth: 280 }]}>
+        Ajoute la carte du dernier artiste que tu as vu en concert.
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.nuit },
-  content: { padding: space.lg, paddingBottom: space.xxl * 2, gap: space.xxl },
-  header: { gap: space.xs },
-  brand: { fontFamily: fonts.display, fontSize: 72, lineHeight: 66, color: colors.papier },
-  section: { gap: space.md },
-  sectionTitle: { ...type.heading, color: colors.papier },
-  swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  swatch: {
-    width: '31.5%',
-    flexGrow: 1,
-    backgroundColor: colors.coulisse,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.trait,
-    overflow: 'hidden',
-  },
-  swatchColor: { height: 56 },
-  swatchText: { padding: space.sm, gap: 2 },
-  swatchName: { fontFamily: fonts.bodyBold, fontSize: 14, color: colors.papier },
-  swatchMeta: { fontFamily: fonts.mono, fontSize: 10, color: colors.brume },
-  inkRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-    backgroundColor: colors.coulisse,
-    borderRadius: radius.md,
-    padding: space.md,
-  },
-  inkLabel: { fontFamily: fonts.bodyBold, fontSize: 16, width: 64 },
-  inkPairs: { flexDirection: 'row', gap: space.sm },
-  miniCard: { width: 50, aspectRatio: 5 / 7, borderRadius: 5, padding: 4 },
-  miniArt: { flex: 1, borderRadius: 3, justifyContent: 'flex-end', padding: 3 },
-  miniMono: { fontFamily: fonts.display, fontSize: 20, lineHeight: 18, textTransform: 'uppercase' },
-  specimen: { gap: space.sm, backgroundColor: colors.coulisse, borderRadius: radius.md, padding: space.lg },
-  primary: {
-    minHeight: touch.primary,
-    borderRadius: radius.md + 2,
+  head: { paddingHorizontal: space.lg, paddingTop: space.xs, paddingBottom: space.md, gap: space.md },
+  brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 32 },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  brandMark: {
+    width: 26,
+    height: 26,
+    borderRadius: 7,
     backgroundColor: colors.surligneur,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: space.lg,
-    boxShadow: `0 4px 0 ${colors.surligneurOmbre}`,
+    transform: [{ rotate: '-6deg' }],
   },
-  primaryPressed: { transform: [{ translateY: 3 }], boxShadow: `0 1px 0 ${colors.surligneurOmbre}` },
-  primaryText: { ...type.button, color: colors.encre },
-  cards: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md },
-  secondary: {
-    minHeight: touch.min + 4,
-    borderRadius: radius.md + 2,
-    borderWidth: 1.5,
+  brandMarkText: { fontFamily: fonts.display, fontSize: 18, color: colors.encre, includeFontPadding: false },
+  brandText: { fontFamily: fonts.display, fontSize: 22, color: colors.papier, textTransform: 'uppercase', letterSpacing: 0.5 },
+  devLink: { minHeight: 32, paddingHorizontal: space.sm, justifyContent: 'center', borderRadius: radius.sm, borderWidth: 1, borderColor: colors.trait },
+  chips: { paddingBottom: space.md },
+  list: { paddingHorizontal: space.lg, gap: GAP, flexGrow: 1 },
+  none: { ...type.body, color: colors.brume, textAlign: 'center', paddingVertical: space.xl },
+  slot: {
+    borderWidth: 2,
+    borderStyle: 'dashed',
     borderColor: colors.trait,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: space.sm,
+    padding: space.md,
   },
+  slotPressed: { borderColor: colors.surligneur },
+  slotMark: { fontFamily: fonts.display, fontSize: 72, lineHeight: 70, color: colors.trait, includeFontPadding: false },
+  slotText: { fontFamily: fonts.bodySemiBold, fontSize: 14, color: colors.brume, textAlign: 'center' },
+  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.md, paddingVertical: space.xxl },
+  ghostCard: {
+    width: 150,
+    aspectRatio: 5 / 7,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: colors.trait,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    transform: [{ rotate: '-5deg' }],
+    marginBottom: space.sm,
+  },
+  ghostMark: { fontFamily: fonts.display, fontSize: 90, color: colors.trait, includeFontPadding: false },
+  center: { textAlign: 'center' },
+  ctaBar: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingTop: space.xxl, paddingHorizontal: space.lg },
 });

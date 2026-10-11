@@ -15,7 +15,7 @@ Une étape = un commit testable. On ne passe à la suivante qu'après validation
   Validation : `npm test` passe.
 - [x] **4. Collection persistante** : hook `useCollection` (ajouter, retirer, lister) enregistré dans AsyncStorage, testé.
   Validation : une carte ajoutée survit au redémarrage de l'app.
-- [ ] **5. Composant Carte** : format 5:7, 6 motifs, 3 mises en page, versions grille et détail.
+- [x] **5. Composant Carte** : format 5:7, 6 motifs, 3 mises en page, versions grille et détail.
   Validation : un écran galerie montre toutes les cartes, toutes différentes.
 - [ ] **6. Écran Collection** : compteur, filtres par genre, grille 2 colonnes, case « ? », état vide, bouton « Ajouter une carte ».
   Validation : on voit sa collection, les filtres fonctionnent.
