@@ -20,7 +20,7 @@ export function BackButton({
       onPress={goBack}
       hitSlop={8}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
-      <Svg width={22} height={22} viewBox="0 0 24 24">
+      <Svg width={22} height={22} viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
         <Path d="M15 5l-7 7 7 7" stroke={colors.papier} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </Svg>
       <Text style={styles.label} maxFontSizeMultiplier={1.5}>

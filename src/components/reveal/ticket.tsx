@@ -5,6 +5,7 @@ import Svg, { Line } from 'react-native-svg';
 import { FixedText } from '@/components/fixed-text';
 import type { Artist } from '@/data/artists';
 import { formatNumber, formatShortDate } from '@/data/format';
+import { fitFontSize } from '@/data/text-width';
 import { colors, fonts, genres } from '@/theme/theme';
 
 type Props = {
@@ -21,8 +22,8 @@ export const TICKET_HEIGHT = 128;
 
 /** Le billet d'entrée : la partie principale et le talon qui se déchire. */
 export function Ticket({ artist, date, band, mainStyle, stubStyle }: Props) {
-  // Le nom tient sur une ligne dans les ~190 px de la partie principale.
-  const nameSize = Math.min(36, 190 / (artist.name.length * 0.5));
+  // Le nom tient sur une ligne dans les 190 px intérieurs de la partie principale.
+  const nameSize = fitFontSize(artist.name, 182, 36);
   return (
     <View style={styles.ticket}>
       <Animated.View style={[styles.main, { borderTopColor: band }, mainStyle]}>

@@ -13,7 +13,7 @@ type Props = {
 export function GenreIcon({ genre, size, color, strokeWidth = 2.2 }: Props) {
   const stroke = { stroke: color, strokeWidth, strokeLinecap: 'round', strokeLinejoin: 'round', fill: 'none' } as const;
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Svg width={size} height={size} viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
       {genre === 'rap' && (
         <>
           <Rect x={8.5} y={2.5} width={7} height={12} rx={3.5} {...stroke} />

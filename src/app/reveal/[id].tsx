@@ -135,6 +135,8 @@ export default function RevealScreen() {
       // Coup de tampon : arrive vite, dépasse un peu, se pose.
       stampScale.value = withTiming(1, { duration: 300, easing: Easing.bezier(0.3, 1.5, 0.5, 1) });
       vibrate(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy));
+      // Filet de sécurité : le flash est éteint quoi qu'il arrive, la carte finit nette.
+      flash.value = withTiming(0, { duration: 150 });
       outro.value = withDelay(100, withTiming(1, { duration: 350 }));
       finish();
     });
@@ -279,7 +281,9 @@ export default function RevealScreen() {
       </Pressable>
 
       <Animated.View style={[styles.copy, outroStyle]}>
-        <Text style={styles.title} accessibilityRole="header" maxFontSizeMultiplier={1.3}>Nouvelle carte !</Text>
+        <Text style={styles.title} accessibilityRole="header" maxFontSizeMultiplier={1.3}>
+          Nouvelle carte{' '}!
+        </Text>
         <Text style={[type.body, { color: colors.brume }]}>
           <Text style={styles.strong}>{artist.name}</Text> rejoint ta collection
         </Text>

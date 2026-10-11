@@ -29,5 +29,5 @@ Une étape = un commit testable. On ne passe à la suivante qu'après validation
   Validation : l'enchaînement ajout → collection est fluide.
 - [ ] **11. Accessibilité** : libellés lecteur d'écran, zones de tap, taille de texte système, test VoiceOver/TalkBack.
   Validation : on peut ajouter une carte sans regarder l'écran.
-- [ ] **12. Finitions et build** : icône, écran de démarrage, APK via EAS.
+- [ ] **12. Finitions et build** : icône, écran de démarrage, retrait des écrans de développement (`/design`, `/gallery`, `/audit`, bouton « Dev »), build iOS (TestFlight) via EAS.
   Validation : l'app s'installe sans Expo Go.

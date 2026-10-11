@@ -7,6 +7,7 @@ import { GenreIcon } from '@/components/genre-icon';
 import type { Artist } from '@/data/artists';
 import { cardVariant, type Layout } from '@/data/card-variant';
 import { formatNumber, formatShortDate, initials } from '@/data/format';
+import { displayWidth, fitFontSize } from '@/data/text-width';
 import { fonts, genres } from '@/theme/theme';
 
 import { CardPattern } from './card-pattern';
@@ -39,7 +40,9 @@ export const ArtistCard = memo(function ArtistCard({ artist, width: w, addedAt, 
     if (width !== art.w || height !== art.h) setArt({ w: width, h: height });
   };
 
-  const nameSize = Math.min(14 * u, (86 * u) / (artist.name.length * 0.48));
+  // 86u : la largeur intérieure de la carte (90u), moins une marge pour les
+  // petites différences de rendu des polices entre iPhone, Android et le web.
+  const nameSize = fitFontSize(artist.name, 86 * u, 14 * u);
 
   return (
     <View
@@ -131,7 +134,8 @@ function Monogram({
   const base = { fontFamily: fonts.display, color, includeFontPadding: false } as const;
 
   if (layout === 'giant') {
-    const fs = 58 * u;
+    // La pochette fait 90u de large : les initiales restent dans 80u.
+    const fs = fitFontSize(initials(name), 80 * u, 58 * u);
     return (
       <FixedText style={[base, styles.abs, { fontSize: fs, lineHeight: fs * 0.88, left: 4 * u, bottom: 0.5 * u }]}>
         {initials(name)}
@@ -142,8 +146,13 @@ function Monogram({
   const words = name.toUpperCase().split(/\s+/);
 
   if (layout === 'stack') {
-    const longest = Math.max(...words.map((x) => x.length));
-    const fs = Math.min(30 * u, (74 * u) / (longest * 0.52), (82 * u) / (words.length * 0.9));
+    // Le mot le plus large tient entre les marges de la pochette (5u et 4u sur 90u),
+    // et toutes les lignes tiennent dans sa hauteur réelle (plus courte sur la
+    // version avec pied de carte), avec de la place pour les accents (É, È).
+    const widest = Math.max(...words.map((x) => displayWidth(x)));
+    const accents = /[À-ÖÙ-Ý]/.test(name.toUpperCase()) ? 0.12 : 0;
+    const height = artHeight > 0 ? artHeight - 14 * u : 78 * u;
+    const fs = Math.min(30 * u, (78 * u) / widest, height / (words.length * 0.9 + accents));
     return (
       <FixedText style={[base, styles.abs, { fontSize: fs, lineHeight: fs * 0.9, left: 5 * u, right: 4 * u, bottom: 4 * u }]}>
         {words.join('\n')}
@@ -153,8 +162,8 @@ function Monogram({
 
   // Vertical : le nom se lit de bas en haut le long du bord gauche.
   if (artHeight <= 0) return null;
-  const fs = Math.min(34 * u, (84 * u) / (name.length * 0.52));
   const boxW = artHeight - 8 * u;
+  const fs = fitFontSize(name, boxW * 0.97, 34 * u);
   const boxH = fs * 1.05;
   const centerX = 3.5 * u + boxH / 2;
   return (
@@ -226,7 +235,6 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: fonts.display,
     textTransform: 'uppercase',
-    letterSpacing: 0.2,
     includeFontPadding: false,
   },
   foot: {

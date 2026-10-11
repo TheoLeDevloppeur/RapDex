@@ -80,7 +80,7 @@ export default function AddScreen() {
           ListHeaderComponent={
             <View style={styles.header}>
               <Text style={type.title} accessibilityRole="header" maxFontSizeMultiplier={1.3}>
-                Qui as-tu vu en concert ?
+                Qui as-tu vu en concert{' '}?
               </Text>
               <Text style={type.bodySmall}>Cherche l’artiste, choisis-le, sa carte rejoint ta collection.</Text>
               <SearchField value={query} onChange={setQuery} onSubmit={onSubmit} />
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.coulisse,
   },
   searchFocused: { borderColor: colors.surligneur },
-  searchIcon: { marginLeft: space.lg },
+  searchIcon: { marginLeft: space.lg, flexShrink: 0 },
   input: {
     flex: 1,
     minHeight: 52,

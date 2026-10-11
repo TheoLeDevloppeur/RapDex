@@ -30,7 +30,7 @@ export function GenreChips({ value, onChange, counts }: Props) {
             onPress={() => onChange(option)}
             style={[styles.chip, selected && styles.chipSelected]}>
             {option !== 'all' && (
-              <GenreIcon genre={option} size={17} color={selected ? colors.encre : genres[option].color} />
+              <GenreIcon genre={option} size={14} color={selected ? colors.encre : genres[option].color} />
             )}
             <Text style={[styles.label, { color: fg }]}>{label}</Text>
             <Text style={[styles.count, { color: selected ? colors.encre : colors.brume }]}>{counts[option]}</Text>
@@ -43,15 +43,16 @@ export function GenreChips({ value, onChange, counts }: Props) {
 
 const styles = StyleSheet.create({
   row: {
-    gap: space.sm,
+    gap: 6,
     paddingHorizontal: space.lg,
   },
   chip: {
     minHeight: 44,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: space.sm,
-    paddingHorizontal: space.lg,
+    // Resserré pour que les quatre filtres tiennent sur un écran de 375 px.
+    gap: 4,
+    paddingHorizontal: 9,
     borderRadius: radius.pill,
     borderWidth: 1.5,
     borderColor: colors.trait,
@@ -62,10 +63,10 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: fonts.bodySemiBold,
-    fontSize: 15,
+    fontSize: 14,
   },
   count: {
     fontFamily: fonts.monoSemiBold,
-    fontSize: 12,
+    fontSize: 11,
   },
 });

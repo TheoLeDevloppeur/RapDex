@@ -238,7 +238,8 @@ const styles = StyleSheet.create({
   brandMarkText: { fontFamily: fonts.display, fontSize: 18, color: colors.encre, includeFontPadding: false },
   brandText: { fontFamily: fonts.display, fontSize: 22, color: colors.papier, textTransform: 'uppercase', letterSpacing: 0.5 },
   devLink: { minHeight: 32, paddingHorizontal: space.sm, justifyContent: 'center', borderRadius: radius.sm, borderWidth: 1, borderColor: colors.trait },
-  counter: { flexDirection: 'row', alignItems: 'flex-end', alignSelf: 'flex-start' },
+  // marginTop : les chiffres de la police d'affiche montent au-dessus de leur ligne.
+  counter: { flexDirection: 'row', alignItems: 'flex-end', alignSelf: 'flex-start', marginTop: 6 },
   chips: { paddingBottom: space.md },
   // paddingTop : de la place pour l'étiquette « NEW » qui dépasse de la première carte.
   list: { paddingHorizontal: space.lg, paddingTop: space.sm + 2, gap: GAP, flexGrow: 1 },

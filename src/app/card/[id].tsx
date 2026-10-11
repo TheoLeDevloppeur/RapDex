@@ -166,7 +166,8 @@ export default function CardDetailScreen() {
         {removing ? null : confirming ? (
           <Animated.View entering={FadeIn.duration(150)} style={styles.confirm}>
             <Text ref={question} style={[type.body, styles.center]} maxFontSizeMultiplier={1.6}>
-              Retirer la carte <Text style={styles.strong}>{artist.name}</Text> ?
+              Retirer la carte <Text style={styles.strong}>{artist.name}</Text>
+              {' '}?
             </Text>
             <View style={styles.confirmRow}>
               <Pressable accessibilityRole="button" onPress={() => setConfirming(false)} style={[styles.choice, styles.keep]}>
